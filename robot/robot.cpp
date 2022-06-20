@@ -4,6 +4,11 @@
 #include <string>
 #include <vector>
 #include <iomanip>
+#include <algorithm>
+
+#include <stdio.h>
+#include <stdlib.h>
+
 
 using namespace std;
 
@@ -15,48 +20,11 @@ int setmapsize() {
     cin >> mapsize;
     return mapsize;
 }
-/*
-double** read_csv() {
-    vector<vector<string>> content;
-    vector<string> row;
-    string line, word;
-    double** data_in = 0;
-    data_in = new double* [2201];
-
-    fstream file("robot.csv", ios::in);
-    if (file.is_open())
-    {
-        while (getline(file, line))
-        {
-            row.clear();
-
-            stringstream str(line);
-
-            while (getline(str, word, ','))
-                row.push_back(word);
-            content.push_back(row);
-        }
-    }
-    else
-        cout << "Could not open the file\n";
 
 
-    for (int i = 1; i < content.size(); i++)
-    {
-        data_in[i] = new double[i];
-        for (int j = 0; j < content[i].size(); j++)
-        {
-            data_in[i][j] = stod(content[i][j]);
-        }
-    }
-
-    return data_in;
-}
-*/
-
-vector<vector<string>> read_csv() {
-    vector<vector<string>> content;
-    vector<string> row;
+vector<vector<long double>> read_csv() {
+    vector<vector<long double>> content;
+    vector<long double> row;
     string line, word;
 
     fstream file("robot.csv", ios::in);
@@ -69,7 +37,7 @@ vector<vector<string>> read_csv() {
             stringstream str(line);
 
             while (getline(str, word, ','))
-                row.push_back(word);
+                row.push_back(stold(word));
             content.push_back(row);
         }
     }
@@ -79,14 +47,45 @@ vector<vector<string>> read_csv() {
     return content;
 }
 
+void drawImage(vector<vector<int>> img) {
+    FILE* imageFile;
+
+    #pragma warning(suppress : 4996)
+    imageFile = fopen("map_image.ppm", "wb");
+    if (imageFile == NULL) {
+        perror("ERROR: Cannot open output file");
+        exit(EXIT_FAILURE);
+    }
+
+    fprintf(imageFile, "P1\n");               // filetype - PBM
+    fprintf(imageFile, "%d %d\n", int(img[0].size()), int(img.size()));   // dimensions - w h
+
+    for (int i = 0; i < img.size(); i++)
+    {    
+        for (int j = 0; j < img[0].size(); j++)
+        {
+            fprintf(imageFile, "%d ", img[i][j]);
+        }
+        fprintf(imageFile, "\n");
+    }
+    fclose(imageFile);
+}
+
+
 int main()
 {
-    cout << "Reading file\n";
-    
-    //double** data = read_csv();
-    vector<vector<string>> data = read_csv();
-    cout << data[10][2];
-    
+    cout << setprecision(17);
+    cout << "Reading file...\n";
+    vector<vector<long double>> data = read_csv();
+
     //int mapsize = setmapsize();
+
+    cout << "Drawing map image...\n";
+    vector<vector<int>> img{ { 1, 0, 1 },
+                         { 0, 1, 1 },
+                         { 1, 0, 0 },
+                        { 0, 1, 0 } };
+    drawImage(img);
+
 }
 
